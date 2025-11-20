@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defense Atlas: India's Defense Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <canvas id="vfx-canvas"></canvas>
+    
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="#home" class="nav-logo">DEFENSE ATLAS 🇮🇳</a>
+            
+            <div class="menu-icon">
+                <i class="fas fa-bars"></i>
+            </div>
+
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#airforce" class="nav-link">Air Force</a></li>
+                <li><a href="#navy" class="nav-link">Navy</a></li>
+                <li><a href="#army" class="nav-link">Army</a></li>
+                <li><a href="#compare" class="nav-link">Compare</a></li>
+                <li><a href="#live-war" class="nav-link">Live Updates</a></li>
+                <li><a href="login.html" class="nav-link btn-logout">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        
+        <section id="home" class="hero-section">
+    <h1>Welcome to Defense Atlas</h1>
+    <p>Your centralized knowledge hub for India's air & naval defense technology.</p>
+
+    <div class="search-bar">
+        <input id="searchInput" type="text" placeholder="Search for fighters, ships, submarines...">
+        <button id="searchBtn">Search</button>
+    </div>
+
+    <!-- Single-line result appears here -->
+    <div id="search-result" class="search-result"></div>
+</section>
+
+<script>
+// ---- DATA: categories + items (25 each approx). All keys lowercase for matching.
+const CATEGORIES = {
+  fighters: {
+    desc: "Fighters: fast, maneuverable military aircraft designed for air-to-air combat and multirole missions.",
+    items: [
+      "rafale","su-30mki","f-16","f-35","typhoon","j-20","su-57","mig-29","tejas mk-1a","jas-39 gripen",
+      "mirage 2000","f/a-18","a-10","su-34","f-15","kfir","kf-21 boramae","j-10","ch-5 (J-31)","f-22",
+      "mig-35","hal tedbf","f-2","fa-50","f-4 phantom"
+    ]
+  },
+  ships: {
+    desc: "Ships: surface warships for power projection, fleet defence, and amphibious operations at sea.",
+    items: [
+      "ins vikrant","ins vikramaditya","uss gerald r. ford","hms queen elizabeth","uss nimitz",
+      "ins visakhapatnam","ins vikrant (iac)","f-35 carrier escorts","type 45 destroyer","ticonderoga class",
+      "kongo class","shenlong class","kuznetsov class","adelaide class","hyundai frigate","ins khanderi",
+      "ins kalaat","ins kiltan","littoral combat ship","meko class","f100 class","river class","lpd","amphibious dock",
+      "destroyer (generic)"
+    ]
+  },
+  submarines: {
+    desc: "Submarines: underwater vessels for stealth patrols, strategic deterrence and attack missions.",
+    items: [
+      "ins arihant","alpha class","typhoon class","los angeles class","virginia class","kilo class",
+      "scorpene","borei class","colossus class","ojv class","soryu class","u-212","u-boot type ix","han class",
+      "gorshkov class","uss ohio","ins chalak (generic)","delta class","narwhal class","barracuda class",
+      "shaheen class","capital sub","diesel-electric generic","nuclear ballistic generic","attack submarine"
+    ]
+  }
+};
+
+// Detailed item info (short single-line detail for many items)
+const ITEM_DETAILS = {
+  "rafale": {type:"Fighter Jet",country:"France/India",detail:"4.5-gen multi-role fighter used by IAF."},
+  "su-30mki": {type:"Fighter Jet",country:"Russia/India",detail:"Twin-engine air superiority fighter customized for India."},
+  "f-16": {type:"Fighter Jet",country:"USA",detail:"Lightweight multirole fighter widely exported."},
+  "f-35": {type:"Stealth Fighter",country:"USA",detail:"5th-gen stealth multirole fighter (JSF program)."},
+  "typhoon": {type:"Fighter Jet",country:"UK/EU",detail:"Multirole European fighter for air superiority."},
+  "j-20": {type:"Stealth Fighter",country:"China",detail:"Chinese 5th-gen stealth fighter for long-range missions."},
+  "su-57": {type:"Stealth Fighter",country:"Russia",detail:"Russian 5th-gen stealth fighter for air dominance."},
+  "mig-29": {type:"Fighter Jet",country:"Russia",detail:"Light multirole fighter with strong dogfight capability."},
+  "tejas mk-1a": {type:"Fighter Jet",country:"India",detail:"Indigenous light combat aircraft by HAL."},
+  "jas-39 gripen": {type:"Fighter Jet",country:"Sweden",detail:"Light, cost-effective multirole fighter."},
+
+  "ins vikrant": {type:"Aircraft Carrier",country:"India",detail:"India's first indigenous aircraft carrier (IAC)."},
+
+  "ins vikramaditya": {type:"Aircraft Carrier",country:"India",detail:"Modified Kiev-class carrier serving the Indian Navy."},
+  "uss gerald r. ford": {type:"Aircraft Carrier",country:"USA",detail:"Lead ship of the Ford-class supercarrier."},
+  "hms queen elizabeth": {type:"Aircraft Carrier",country:"UK",detail:"Flagship carrier of the Royal Navy."},
+  "ins visakhapatnam": {type:"Destroyer",country:"India",detail:"Advanced stealth guided-missile destroyer of Indian Navy."},
+
+  "ins arihant": {type:"Nuclear Submarine",country:"India",detail:"India's first indigenously built SSBN strategic deterrent."},
+  "kilo class": {type:"Diesel Submarine",country:"Russia",detail:"Quiet export diesel-electric attack submarine."},
+  "scorpene": {type:"Diesel Submarine",country:"France/Spain/India",detail:"Modern conventional submarine class (Scorpene)."},
+  "virginia class": {type:"Nuclear Submarine",country:"USA",detail:"Modern US nuclear attack submarine class."},
+  "los angeles class": {type:"Nuclear Submarine",country:"USA",detail:"Cold War-era prolific US attack submarine."},
+
+  // fallback generic details for items without specific entry:
+  "default": {type:"Platform",country:"Various",detail:"Information not available; search a specific platform name for details."}
+};
+
+// helper to produce one-line category output: description + comma-separated names
+function categoryOneLine(catKey) {
+  const cat = CATEGORIES[catKey];
+  if (!cat) return null;
+  // join up to 30 names
+  return cat.desc + " " + cat.items.slice(0,30).map(n => capitalizeDisplay(n)).join(", ");
+}
+
+// helper to build one-line item detail
+function itemOneLine(name) {
+  const key = name.toLowerCase();
+  const info = ITEM_DETAILS[key] || null;
+  if (info) {
+    return `${capitalizeDisplay(key)} - ${info.type} - ${info.country} - ${info.detail}`;
+  }
+  // if not in ITEM_DETAILS but present in categories items, provide a short generated line
+  for (const ck of Object.keys(CATEGORIES)) {
+    if (CATEGORIES[ck].items.includes(key)) {
+      // generate generic one-liner
+      return `${capitalizeDisplay(key)} - ${ck.slice(0,-1)} - Various countries - Brief info not available.`;
+    }
+  }
+  return null;
+}
+
+function capitalizeDisplay(key) {
+  // prettify common names like ins vikrant -> INS Vikrant, f-35 -> F-35, tejas mk-1a -> Tejas MK-1A
+  return key.split(" ").map(part => {
+    if (part.match(/^(ins|uss|hms|hal|iac)$/i)) return part.toUpperCase();
+    return part.split("-").map(p => p.charAt(0).toUpperCase() + p.slice(1)).join("-");
+  }).join(" ");
+}
+
+// main search logic: category keywords first, then exact item match, otherwise partial item match
+function searchEquipment() {
+  const raw = document.getElementById("searchInput").value.toLowerCase().trim();
+  const resultDiv = document.getElementById("search-result");
+  if (!raw) { resultDiv.innerText = ""; return; }
+
+  // category keywords
+  if (raw === "fighter" || raw === "fighters") {
+    resultDiv.innerText = categoryOneLine("fighters");
+    return;
+  }
+  if (raw === "ship" || raw === "ships") {
+    resultDiv.innerText = categoryOneLine("ships");
+    return;
+  }
+  if (raw === "submarine" || raw === "submarines") {
+    resultDiv.innerText = categoryOneLine("submarines");
+    return;
+  }
+
+  // exact item match
+  const exact = itemOneLine(raw);
+  if (exact) { resultDiv.innerText = exact; return; }
+
+  // partial search across category items & ITEM_DETAILS keys
+  // find first matching item name that includes the input
+  const allItems = [].concat(...Object.values(CATEGORIES).map(c => c.items));
+  const partialKey = allItems.find(i => i.includes(raw));
+  if (partialKey) {
+    const partialLine = itemOneLine(partialKey) || `${capitalizeDisplay(partialKey)} - Info not available.`;
+    resultDiv.innerText = partialLine;
+    return;
+  }
+
+  resultDiv.innerText = "No matching result found.";
+}
+
+// Enter and button support
+document.getElementById("searchBtn").addEventListener("click", searchEquipment);
+document.getElementById("searchInput").addEventListener("keyup", (e) => {
+  if (e.key === "Enter") searchEquipment();
+});
+</script>
+
+<style>
+/* minimal styling; result must appear as one-line text */
+.search-result {
+  margin-top: 18px;
+  color: #dff9ff;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 16px;
+}
+.search-bar { display: flex; justify-content:center; gap:8px; margin-top:16px; }
+.search-bar input { width:420px; padding:12px 14px; border-radius:30px; border:1px solid rgba(0,180,255,0.25); background:rgba(0,0,0,0.45); color:#fff; }
+.search-bar button { padding:10px 16px; border-radius:20px; background:#00e0ff; border:none; cursor:pointer; }
+</style>
+
+
+        <section id="categories" class="content-section">
+            <h2>Featured Assets</h2>
+            <div class="card-grid">
+                <div class="asset-card" id="airforce">
+                    <img src="https://akm-img-a-in.tosshub.com/indiatoday/images/story/202503/indian-air-force-203055555-16x9_0.jpg?VersionId=2dsC6TX0KLjGQTpz6reka9NJTWQzWT1s&size=690:388" alt="IAF Jet">
+                    <div class="card-content">
+                        <h3>Indian Air Force</h3>
+                        <p>Explore fighter jets, helicopters, and transport aircraft.</p>
+                        <a href="https://indianairforce.nic.in/" class="btn-card">Explore IAF</a>
+                    </div>
+                </div>
+                <div class="asset-card" id="navy">
+                    <img src="https://wallpapercave.com/wp/wp2998507.jpg" alt="INS Vikrant">
+                    <div class="card-content">
+                        <h3>Indian Navy</h3>
+                        <p>Discover aircraft carriers, destroyers, and submarines.</p>
+                        <a href="https://www.joinindiannavy.gov.in/en/account/account/state" class="btn-card">Explore Navy</a>
+                    </div>
+                </div>
+                <div class="asset-card" id="army">
+                    <img src="https://feeds.abplive.com/onecms/images/uploaded-images/2022/07/21/31c339b33391d2f42d36bc5797b6b8701658376928_original.jpg" alt="T-90 Tank">
+                    <div class="card-content">
+                        <h3>Indian Army</h3>
+                        <p>Learn about tanks, artillery, and ground defense systems.</p>
+                        <a href="https://www.indianarmy.nic.in/" class="btn-card">Explore Army</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+<section id="compare" class="content-section">
+  <h2>Comparative Analysis</h2>
+  <p>Compare two defense assets side-by-side.</p>
+
+  <div class="compare-tool">
+    <select id="asset1">
+      <option value="">Select Asset 1</option>
+    </select>
+    <span class="vs-text">VS</span>
+    <select id="asset2">
+      <option value="">Select Asset 2</option>
+    </select>
+    <button class="btn-card" id="compareBtn">Compare</button>
+  </div>
+
+  <div id="compareResult" style="margin-top: 40px;"></div>
+
+  <script>
+    // Defense asset data (15+ items)
+    const assets = [
+      { id: "tejas", name: "HAL Tejas", type: "Fighter Jet", country: "India", speed: "Mach 1.8", range: "1,850 km", crew: "1", service: "Indian Air Force" },
+      { id: "rafale", name: "Dassault Rafale", type: "Fighter Jet", country: "France", speed: "Mach 1.8", range: "3,700 km", crew: "1", service: "French Air Force" },
+      { id: "f16", name: "F-16 Fighting Falcon", type: "Fighter Jet", country: "USA", speed: "Mach 2.0", range: "4,200 km", crew: "1", service: "US Air Force" },
+      { id: "jf17", name: "JF-17 Thunder", type: "Fighter Jet", country: "Pakistan/China", speed: "Mach 1.6", range: "2,037 km", crew: "1", service: "PAF" },
+      { id: "su30", name: "Sukhoi Su-30MKI", type: "Fighter Jet", country: "Russia/India", speed: "Mach 2.0", range: "3,000 km", crew: "2", service: "Indian Air Force" },
+      { id: "mig29", name: "Mikoyan MiG-29", type: "Fighter Jet", country: "Russia", speed: "Mach 2.25", range: "2,100 km", crew: "1", service: "Russian Air Force" },
+      { id: "insvikrant", name: "INS Vikrant", type: "Aircraft Carrier", country: "India", speed: "28 knots", range: "15,000 km", crew: "1600", service: "Indian Navy" },
+      { id: "insari", name: "INS Arihant", type: "Nuclear Submarine", country: "India", speed: "24 knots", range: "Unlimited (nuclear)", crew: "95", service: "Indian Navy" },
+      { id: "t90", name: "T-90 Bhishma", type: "Main Battle Tank", country: "Russia/India", speed: "60 km/h", range: "550 km", crew: "3", service: "Indian Army" },
+      { id: "arjun", name: "Arjun MBT Mk1A", type: "Main Battle Tank", country: "India", speed: "58 km/h", range: "500 km", crew: "4", service: "Indian Army" },
+      { id: "chinook", name: "Boeing CH-47 Chinook", type: "Transport Helicopter", country: "USA", speed: "302 km/h", range: "741 km", crew: "3", service: "US/India" },
+      { id: "apache", name: "AH-64 Apache", type: "Attack Helicopter", country: "USA", speed: "293 km/h", range: "476 km", crew: "2", service: "US/India" },
+      { id: "inskalvari", name: "INS Kalvari", type: "Diesel Submarine", country: "India/France", speed: "20 knots", range: "12,000 km", crew: "53", service: "Indian Navy" },
+      { id: "f35", name: "F-35 Lightning II", type: "Stealth Fighter", country: "USA", speed: "Mach 1.6", range: "2,200 km", crew: "1", service: "US Air Force" },
+      { id: "su57", name: "Sukhoi Su-57", type: "Stealth Fighter", country: "Russia", speed: "Mach 2.0", range: "3,500 km", crew: "1", service: "Russian Air Force" },
+      { id: "b21", name: "B-21 Raider", type: "Stealth Bomber", country: "USA", speed: "Mach 0.95", range: "9,000 km", crew: "2", service: "US Air Force" },
+      { id: "inskolkata", name: "INS Kolkata", type: "Destroyer", country: "India", speed: "30 knots", range: "8,000 km", crew: "350", service: "Indian Navy" }
+    ];
+
+    // Dropdown fill karna
+    const select1 = document.getElementById("asset1");
+    const select2 = document.getElementById("asset2");
+    assets.forEach(a => {
+      let opt1 = document.createElement("option");
+      opt1.value = a.id;
+      opt1.textContent = a.name;
+      let opt2 = opt1.cloneNode(true);
+      select1.appendChild(opt1);
+      select2.appendChild(opt2);
+    });
+
+    // Compare button
+    document.getElementById("compareBtn").addEventListener("click", () => {
+      const a1 = select1.value;
+      const a2 = select2.value;
+      const resultDiv = document.getElementById("compareResult");
+
+      if (!a1 || !a2) {
+        resultDiv.innerHTML = "<p style='color:orange;'>⚠️ Please select both assets.</p>";
+        return;
+      }
+
+      const asset1 = assets.find(x => x.id === a1);
+      const asset2 = assets.find(x => x.id === a2);
+
+      resultDiv.innerHTML = `
+        <div style="display:flex; justify-content:center; align-items:flex-start; gap:20px; flex-wrap:wrap;">
+          <div style="background:#1a2235; border-radius:10px; padding:20px; width:300px; box-shadow:0 0 10px rgba(255,255,255,0.2);">
+            <h3>${asset1.name}</h3>
+            <p><b>Type:</b> ${asset1.type}</p>
+            <p><b>Country:</b> ${asset1.country}</p>
+            <p><b>Speed:</b> ${asset1.speed}</p>
+            <p><b>Range:</b> ${asset1.range}</p>
+            <p><b>Crew:</b> ${asset1.crew}</p>
+            <p><b>Service:</b> ${asset1.service}</p>
+          </div>
+
+          <div style="align-self:center; font-size:28px; font-weight:bold;">VS</div>
+
+          <div style="background:#1a2235; border-radius:10px; padding:20px; width:300px; box-shadow:0 0 10px rgba(255,255,255,0.2);">
+            <h3>${asset2.name}</h3>
+            <p><b>Type:</b> ${asset2.type}</p>
+            <p><b>Country:</b> ${asset2.country}</p>
+            <p><b>Speed:</b> ${asset2.speed}</p>
+            <p><b>Range:</b> ${asset2.range}</p>
+            <p><b>Crew:</b> ${asset2.crew}</p>
+            <p><b>Service:</b> ${asset2.service}</p>
+          </div>
+        </div>
+      `;
+    });
+  </script>
+</section>
+
+
+
+<section id="live-war" class="content-section" style="padding:20px;">
+    <h2 style="text-align:center; color:#00eaff;">Live Strategic Updates</h2>
+    <p style="text-align:center; color:#ccc;">Real-time world map + changing live defence updates</p>
+
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+        .live-box {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        #liveMap {
+            flex: 2;
+            min-width: 300px;
+            height: 450px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .news-dark {
+            flex: 1;
+            min-width: 300px;
+            max-height: 450px;
+            overflow-y: auto;
+            padding: 15px;
+            background: #111827;
+            color: #d1d5db;
+            border-radius: 12px;
+        }
+        .news-dark h3 { margin-top: 0; color: #00eaff; }
+        .news-dark ul { padding-left: 20px; }
+        .news-dark li { margin-bottom: 12px; line-height: 1.5; }
+        .news-dark a { color: #5ab8ff; text-decoration: none; }
+        .news-dark a:hover { text-decoration: underline; }
+
+        /* LIVE TICKER */
+        #liveTicker {
+            margin-top: 15px;
+            padding: 10px;
+            background: #0f172a;
+            border-radius: 8px;
+            color: #9ca3af;
+            font-size: 15px;
+            animation: fade 1s ease-in-out;
+        }
+        @keyframes fade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+
+    <div class="live-box">
+
+        <!-- 🌍 Working Live Map -->
+        <div id="liveMap"></div>
+
+        <!-- 📰 Dark Mode News -->
+        <div class="news-dark">
+            <h3>Latest Defence & War News</h3>
+            <ul id="newsList"></ul>
+
+            <div id="liveTicker">Loading live updates...</div>
+        </div>
+
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <script>
+        // ============================================
+        // 🌍 LIVE MAP (Leaflet + OpenStreetMap)
+        // ============================================
+        const map = L.map("liveMap").setView([20, 78], 4);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 18,
+        }).addTo(map);
+
+        // Optional: LIVE conflict markers (custom sample)
+        const sampleEvents = [
+            { place: "Ukraine", lat: 48.3, lng: 31 },
+            { place: "Gaza", lat: 31.4, lng: 34.3 },
+            { place: "Red Sea", lat: 15.5, lng: 42.5 },
+        ];
+
+        sampleEvents.forEach(e =>
+            L.marker([e.lat, e.lng]).addTo(map).bindPopup(`Live Event: ${e.place}`)
+        );
+
+        // ============================================
+        // 📰 LIVE NEWS FETCH (Dark Mode)
+        // ============================================
+        async function loadNews() {
+            try {
+                const url =
+                 "https://api.rss2json.com/v1/api.json?rss_url=https://feeds.bbci.co.uk/news/world/rss.xml";
+
+                const res = await fetch(url);
+                const data = await res.json();
+
+                const list = document.getElementById("newsList");
+                list.innerHTML = "";
+
+                // Show Top 10 headlines
+                data.items.slice(0, 10).forEach(item => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `<a href="${item.link}" target="_blank">• ${item.title}</a>`;
+                    list.appendChild(li);
+                });
+
+                // LIVE TICKER AUTO-CHANGE
+                let index = 0;
+                const ticker = document.getElementById("liveTicker");
+
+                setInterval(() => {
+                    ticker.innerHTML = "🔴 " + data.items[index].title;
+                    index = (index + 1) % data.items.length;
+                }, 4000);
+
+            } catch (err) {
+                document.getElementById("newsList").innerHTML =
+                    "<li>Error loading live news.</li>";
+            }
+        }
+
+        loadNews();
+        setInterval(loadNews, 60000);
+    </script>
+</section>
+
+
+
+        
+
+    </main>
+
+    <div class="chatbot-container">
+        <div class="chat-window" id="chat-window">
+            <div class="chat-header">
+                <p>Defense AI Bot</p>
+                <button id="close-chat" class="close-chat-btn">&times;</button>
+            </div>
+            <div class="chat-body" id="chat-body">
+                <div class="chat-message bot">
+                    <p>Hello! How can I help you with Indian Defense tech today?</p>
+                </div>
+            </div>
+            <div class="chat-footer">
+                <input type="text" id="chat-input" placeholder="Ask about Tejas, Vikrant...">
+                <button id="send-chat-btn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        <button class="chat-toggle-btn" id="chat-toggle-btn">
+            <i class="fas fa-comments"></i>
+        </button>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <p>"A reliable and structured source of information about India's defense equipment." [cite: 12]</p>
+            <div class="social-links">
+                <a href="https://github.com/Ankit-Kumar8651" target="_blank" title="GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/ankit-saini-106585329/" target="_blank" title="LinkedIn">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                <a href="mailto:ankitkr8651005671@gmail.com" title="Gmail">
+                    <i class="fas fa-envelope"></i>
+                </a>
+            </div>
+            <p>&copy; 2025 Defense Atlas. Created by Ankit Kumar.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

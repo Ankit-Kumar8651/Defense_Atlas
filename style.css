@@ -1,0 +1,603 @@
+/* --- Global Variables (Yahan se aap colors badal sakte hain) --- */
+:root {
+    --primary-color: #00d4ff; /* Main blue/cyan color */
+    --dark-bg: #02040a;       /* Dark background */
+    --card-bg: rgba(10, 20, 40, 0.7); /* 'Glass' background */
+    --nav-bg: rgba(5, 10, 20, 0.8); /* Navbar background */
+    --font-color: #e0e0e0;
+}
+
+/* --- Basic Setup --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--dark-bg);
+    color: var(--font-color);
+    line-height: 1.6;
+    /* Body ko background se upar rakha hai */
+    position: relative;
+    z-index: 1;
+    overflow-x: hidden; /* Horizontal scroll ko rokna */
+}
+
+html {
+    scroll-behavior: smooth; /* Smooth scrolling ke liye */
+}
+
+/* --- NAYA VFX: Floating Orbs Background --- */
+#vfx-canvas {
+    position: fixed; /* Poori screen par fix */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Sabse peeche rakha hai */
+    z-index: -1;
+    opacity: 0.7; /* Ise kam-zyada kar sakte hain */
+}
+
+/* --- Login Page Styles --- */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.login-form {
+    background: var(--card-bg);
+    border: 1px solid var(--primary-color);
+    backdrop-filter: blur(10px); /* Glass jaisa effect */
+    padding: 2.5rem;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+}
+
+.login-form h2 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    font-size: 2rem;
+}
+
+.login-form p {
+    margin-bottom: 2rem;
+    font-size: 1rem;
+}
+
+.input-group {
+    text-align: left;
+    margin-bottom: 1.5rem;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--font-color);
+}
+
+.input-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--primary-color);
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.btn-login {
+    display: block;
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--primary-color);
+    color: var(--dark-bg);
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-login:hover {
+    background: white;
+    color: var(--primary-color);
+    box-shadow: 0 0 15px var(--primary-color);
+}
+
+.login-footer {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.login-footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+/* --- Navbar Styles (Same as before) --- */
+.navbar {
+    background: var(--nav-bg);
+    backdrop-filter: blur(10px); /* Glass effect */
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    position: sticky; /* Navbar upar chipka rahega */
+    top: 0;
+    z-index: 999;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    height: 80px;
+    width: 100%;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.nav-logo {
+    color: var(--primary-color);
+    justify-self: start;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 2rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    text-align: center;
+}
+
+.nav-link {
+    color: var(--font-color);
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    padding: 0 1rem;
+    height: 100%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--primary-color);
+    text-shadow: 0 0 10px var(--primary-color);
+}
+
+.btn-logout {
+    background: var(--primary-color);
+    color: var(--dark-bg);
+    padding: 8px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+.btn-logout:hover {
+    background: white;
+    color: var(--primary-color);
+}
+
+/* Mobile Menu Icon */
+.menu-icon {
+    display: none; /* Laptop par hide */
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: white;
+}
+
+/* --- Hero Section (Home) --- */
+.hero-section {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.hero-section h1 {
+    font-size: 3.5rem;
+    color: white;
+    text-shadow: 0 0 20px var(--primary-color);
+}
+
+.hero-section p {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    max-width: 600px;
+}
+
+.search-bar {
+    display: flex;
+    width: 100%;
+    max-width: 600px;
+    border: 1px solid var(--primary-color);
+    border-radius: 50px;
+    overflow: hidden;
+    background: var(--card-bg);
+    backdrop-filter: blur(5px);
+}
+
+.search-bar input {
+    flex-grow: 1;
+    border: none;
+    background: transparent;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    color: white;
+    outline: none;
+}
+
+.search-bar button {
+    border: none;
+    background: var(--primary-color);
+    color: var(--dark-bg);
+    padding: 0 1.5rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+/* --- Content Sections --- */
+.main-content {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.content-section {
+    padding: 4rem 1.5rem;
+    margin-bottom: 20px;
+    background: var(--card-bg);
+    backdrop-filter: blur(5px);
+    border-radius: 10px;
+    border: 1px solid rgba(0, 212, 255, 0.1);
+}
+
+.content-section h2 {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.content-section p {
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 2.5rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* --- Card Grid (Assets) --- */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.asset-card {
+    background: var(--nav-bg); 
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.asset-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+}
+
+.asset-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-content {
+    padding: 1.5rem;
+}
+
+.card-content h3 {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.btn-card {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background: var(--primary-color);
+    color: var(--dark-bg);
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+   transition: all 0.3s ease;
+   display: flex;
+   justify-content: center ;
+   align-items: center;
+}
+.btn-card:hover {
+    background: white;
+    color: var(--primary-color);
+}
+
+/* --- Compare Tool --- */
+.compare-tool {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap; 
+}
+.compare-tool select {
+    padding: 0.75rem;
+    font-size: 1rem;
+    background: var(--dark-bg);
+    color: white;
+    border: 1px solid var(--primary-color);
+    border-radius: 5px;
+}
+.vs-text {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+/* --- Live War Section --- */
+.live-war-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap; 
+}
+.map-placeholder {
+    flex: 2; 
+    min-height: 300px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px dashed var(--primary-color);
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+}
+.news-ticker {
+    flex: 1; 
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 1rem;
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+}
+.news-ticker p {
+    position: absolute;
+    width: 100%;
+    margin: 0;
+    text-align: left;
+    white-space: nowrap;
+    animation: ticker 20s linear infinite;
+}
+.news-ticker p span { color: #ff6b6b; font-weight: bold; }
+
+@keyframes ticker {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-150%); }
+}
+
+/* --- Finance Manager Section --- */
+.finance-manager {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+.finance-card {
+    background: var(--nav-bg);
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid var(--primary-color);
+}
+.finance-card h4 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: var(--font-color);
+}
+.finance-card .amount {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+.finance-input {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+.finance-input input {
+    flex: 1;
+    min-width: 200px; /* Phone par sahi dikhe */
+    padding: 0.75rem;
+    background: var(--dark-bg);
+    color: white;
+    border: 1px solid var(--primary-color);
+    border-radius: 5px;
+}
+/* Finance Expense List */
+.expense-list {
+    margin-top: 2rem;
+}
+.expense-list h3 {
+    color: var(--primary-color);
+    border-bottom: 1px solid var(--primary-color);
+    padding-bottom: 5px;
+}
+.expense-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background: var(--nav-bg);
+    border-radius: 5px;
+    margin-top: 10px;
+    border-left: 3px solid #ff6b6b;
+}
+.expense-item span:first-child {
+    font-weight: bold;
+}
+
+/* --- Chatbot Styles --- */
+.chatbot-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+.chat-toggle-btn {
+    background: var(--primary-color);
+    color: var(--dark-bg);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    box-shadow: 0 0 20px var(--primary-color);
+}
+.chat-window {
+    width: 350px;
+    height: 450px;
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    border: 1px solid var(--primary-color);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    display: none; /* Shuru me hide */
+}
+.chat-window.show-chat {
+    display: flex; /* JS se show hoga */
+}
+.chat-header {
+    background: var(--primary-color);
+    color: var(--dark-bg);
+    padding: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.chat-header p { margin: 0; font-size: 1rem; font-weight: bold; }
+.close-chat-btn {
+    background: none; border: none;
+    color: var(--dark-bg); font-size: 1.5rem; cursor: pointer;
+}
+.chat-body {
+    flex-grow: 1; padding: 1rem; overflow-y: auto; 
+}
+.chat-message { margin-bottom: 1rem; }
+.chat-message p {
+    background: var(--dark-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    max-width: 80%;
+    word-wrap: break-word;
+    margin: 0; text-align: left;
+}
+.chat-message.bot p {
+    background: var(--primary-color);
+    color: var(--dark-bg);
+    border-bottom-left-radius: 0;
+}
+.chat-message.user { display: flex; justify-content: flex-end; }
+.chat-message.user p {
+    background: #333; color: white;
+    border-bottom-right-radius: 0;
+}
+.chat-footer { display: flex; border-top: 1px solid var(--primary-color); }
+.chat-footer input {
+    flex-grow: 1; border: none; background: transparent;
+    padding: 1rem; color: white; outline: none;
+}
+.chat-footer button {
+    border: none; background: var(--primary-color);
+    color: var(--dark-bg); padding: 0 1rem;
+    font-size: 1.2rem; cursor: pointer;
+}
+
+/* --- Footer Styles --- */
+.footer {
+    background: var(--nav-bg);
+    padding: 2rem;
+    text-align: center;
+    border-top: 1px solid var(--primary-color);
+    margin-top: 2rem;
+}
+.social-links { margin: 1rem 0; }
+.social-links a {
+    color: var(--font-color);
+    font-size: 2rem;
+    margin: 0 1rem;
+    transition: color 0.3s ease;
+}
+.social-links a:hover { color: var(--primary-color); }
+
+/* --- PHONE VERSION (Responsive) --- */
+@media screen and (max-width: 768px) {
+    
+    /* Navbar ko change karna */
+    .nav-menu {
+        display: flex;
+        flex-direction: column; 
+        width: 100%;
+        position: absolute;
+        top: 80px; 
+        left: -100%; /* Screen ke bahar */
+        transition: all 0.5s ease;
+        background: var(--nav-bg);
+    }
+    .nav-menu.active {
+        left: 0; /* Screen par lana */
+    }
+    .nav-link { width: 100%; padding: 1.5rem; text-align: center; }
+    .menu-icon { display: block; } /* Hamburger icon dikhana */
+
+    /* Cards ko 1 column me karna */
+    .card-grid, .finance-manager {
+        grid-template-columns: 1fr;
+    }
+    .hero-section h1 { font-size: 2.5rem; }
+    .hero-section p { font-size: 1.2rem; }
+
+    /* Compare tool ko vertical karna */
+    .compare-tool { flex-direction: column; }
+    
+    /* Chat window ko chota karna */
+    .chat-window { width: 90vw; height: 70vh; }
+}
